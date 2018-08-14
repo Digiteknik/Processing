@@ -8,10 +8,16 @@ var video;
 
 function setup() {
   createCanvas(320, 240);
+  pixelDensity(1);
+  video = createCapture(VIDEO);
+  // The above function actually makes a separate video
+  // element on the page.  The line below hides it since we are
+  // drawing the video to the canvas
+  //video.hide();
 }
 
 function draw() {
-    fill(0,200,200);
-    ellipse(mouseX, mouseY, 20,20);
+  background(0);
+  // Step 5. Display the video image.
+  image(video, 0, 0, width, height);
 }
-
