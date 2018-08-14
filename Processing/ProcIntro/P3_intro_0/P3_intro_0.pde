@@ -1,6 +1,7 @@
 /* Processing: Variabler, setup() og draw()
  *
  * Vi tegner en græsplæne med et træ, og lærer det grundlæggende om Processing. 
+ *
  * Et program i Processing kaldes en sketch. Start med at "køre" denne sketch 
  * ved at trykke på Run-knappen herover (den med trekanten).
  *
@@ -12,7 +13,7 @@
  * når det kører.
  */
 
-/* Først i koden plejer man at opskrive - "erklære" - navnene på de forskellige  
+/* Øverst i koden plejer man at opskrive - "erklære" - navnene på de forskellige  
  * værdier, programmet skal bruge. De kaldes "variabler" og har hver 
  * en bestemt type og et bestemt navn. Æ, Ø og Å må ikke bruges i navnene.
  * Først definerer vi nogle farver
