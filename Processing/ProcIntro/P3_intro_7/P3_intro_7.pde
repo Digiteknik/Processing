@@ -50,7 +50,7 @@ void setup() {
                                            // Bemærk hvorledes vi indsætter nummeret i filnavnet.
                                            // Det første element i et array har nummer 0 (nul).
   }
-}
+} // slut på setup()
 
 // draw()-metoden tegner nu både skov og himmel som før, men også enten en knap eller haren.
 void draw() {
@@ -61,9 +61,9 @@ void draw() {
                                            // tegnHare() skifter billede og flytter det hver gang.
   else tegnKnap();                         // Mens haren løber skal knappen ikke tegnes.
   tegnHimmel();
-}
+} // slut på draw()
 
-// Funktionen der tegner en knap. Den tegner den kun men undersøger ikke om man
+// Metoden der tegner en knap. Den tegner den kun men undersøger ikke om man
 // har trykket på knappen eller bestemmer hvad der så skal ske
 void tegnKnap() {
   fill(knapFarve);
@@ -73,9 +73,9 @@ void tegnKnap() {
   textAlign(CENTER);                       // Teksten justeres med midten ved de givne koordinater
   text(knapTekst, kx+kw*0.5, ky+kh*0.5+8); // Koordinaterne angiver så midten af tekstens grundlinje.
                                            // I forhold til knappens venstre hjørne må vi justere.
-}
+} // slut på tegnKnap()
 
-// Funktionen der tegner den løbende hare.
+// Metoden der tegner den løbende hare.
 void tegnHare() {
   fill(graes);                             // Først skal vi tegne græsset over mellem hvert billede,
   stroke(graes);                           // lige som vi gør med himlen
@@ -95,7 +95,7 @@ void tegnHare() {
     knapTrykket = false;                   // Så er haren løbet ud af billedet og knappen skal tilbage
     hx = -80;                              // Næste gang haren tegnes skal den starte til venstre
   }
-}
+} // slut på tegnHare()
 
 void tegnSkov(int antalTraer) {
   for(int t = 0; t < antalTraer; t++) {
@@ -107,7 +107,7 @@ void tegnSkov(int antalTraer) {
     tegnTrae(random(50, 570), 490+t*4, krone); // Og hvert nyt træ tegnes lidt længere nede end før
   }
   skovIkkeTegnet = false;                  // Skoven er nu tegnet, flaget skal "ned"
-}
+} // slut på tegnSkov()
 
 void tegnHimmel() {
   fill(himmel);
@@ -121,7 +121,7 @@ void tegnHimmel() {
   if (sky_1x > 800) sky_1x = -100;
   sky_2x += 2;
   if (sky_2x > 800) sky_2x = -100;  
-}
+} // slut på tegnHimmel()
 
 void tegnTrae(float xx, float yy, color ff) {
   stroke(0);
@@ -130,7 +130,7 @@ void tegnTrae(float xx, float yy, color ff) {
   fill(ff);                            // Kronens farve får vi nu derfra hvor funktionen kaldes.
   ellipse(xx, yy-210, 150, 180);       
   // Husk også at sætte æblet på.
-}
+} // slut på tegnTrae()
 
 // mouseClicked() skal nu som det første undersøge, om museklikket er sket på knappen. Det
 // gør vi ved at undersøge om musens koordinater er inden for grænserne af knappens rektangel.
@@ -149,7 +149,7 @@ void mouseClicked() {
       tegnTrae(mouseX, mouseY, krone);  // som vi sender til tegnTrae(...) sammen med musens
                                         // koordinater.
     }
-}
+} // slut på mouseClicked()
 
 // Opgave 1:  Lav en knap mere, som skifter musens funktion fra at tegne flere træer
 //            til at tegne billeder af sommerfugle. Husk at billederne skal tilføjes 

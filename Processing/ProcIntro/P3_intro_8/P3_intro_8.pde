@@ -1,203 +1,236 @@
-/* Processing: At lave et lille Whack-a-Mole spil. 
- *
- * Spillet skal have en muldvarp, der dukker op tilfældige steder og forsvinder igen
- * kort efter. Man skal nå at ramme den med musen (som er blevet til en hammer). Hvis man 
- * rammer vises et splat, hvis den når at dykke værk igen vises et muldvarpeskud. Der er 
- * også pointfelter, og det bliver sværere og sværere at nå at ramme, jo flere man får.
+/* Processing: At lave et spil med en brugerflade, samt at lave egne klasser, dvs. egne "skabeloner"
+ * til at lave objekter fra. Klassenavne starter med stort, så man kan se at fx String og PImage,
+ * som bruges her i sketchen, også er klasser af objekter. 
  * 
+ * Vi vil nu lave et spil, hvor haren fra før skal løbe over skærmen og springe over forhindringer
+ * (træer), som kommer ind fra højre. 
+ 
+ * Trae er en ny klasse, som vi danner vores egne objekter fra, i dette tilfælde træer (eller buske,
+ * som jo er træer uden stamme), og træerne lægges ind i et array og tegnes efterhånden, 
+ * men fjernes igen når de er forbi kanten af skærmen. Klassen Trae ligger på et nyt faneblad 
+ * øverst. I skal føje yderligere en klasse, Gulerod, til spillet senere.
+ *
+ * Når haren løber ud af skærmen vil der komme en knap øverst, som man kan trykke på og 
+ * dermed få haren til at påny. Det er en del af brugerfladen. En anden del er felter til at 
+ * vise forskellige former for scores, dem får I lov at lave.
+ *
+ * Selve spillets mekanik får I også selv lov at lave om på til sidst. 
+ *
+ * Opgaverne står fra linje 180. De kodeblokke, jeg ikke har ændret væsentligt på, står efter dem
  */
 
 // Variabler
-color jord = color(170, 80, 30);
-color graes = color(100, 215, 55);
+int baneBred = 1000;                       // Vinduets dimensioner
+int baneHoj = 800;
+color graes = color(100, 255, 55);
+color himmel = color(170, 170, 255);
+color sky = color(240, 240, 240);
+float sky_1x, sky_2x, sky_1fart, sky_2fart;// Variablerne til at styre skyerne med.
 
-// Variabler til at styre pointfeltet
-int pointAntal, missAntal = 0;
-float kx, ky, kw, kh;                  // Pointfelternes position, bredde og højde
-String knapTekst = "Point: ";          // Teksten, der skal skrives i pointfeltet
-String missTekst = "Misses: ";         // Teksten, der skal skrives i miss-feltet
-color knapFarve = color(255, 140, 0);  // Pointfeltets farve (orange)
+float xSpeed, ySpeed;                      // Variabler til at styre banens/harens fart
+float grav = 3;                            // "Gravitationskonstanten" - hvor hurtigt kommer haren ned
 
-// Variabler til billedet af muldvarpen
-PImage mole, pile, blood;              // Billeder til skærmen af muldvarp, jordbunke og blod
-PImage hammer, hammerH;                // Billeder til cursoren
-float mx, my, mw, mh = 0;              // Muldvarpens position, bredde og højde
-float rx, ry = 0;                      // Dens tidligere position, hvor der enten er jord eller blod
-float mTimer, mLimit, rTimer, cTimer = 0;  // Timere, så muldvarp, blod eller jord kun ses kort tid
-                                           // Timerne kører ikke på absolut tid men på antal gennemløb
-                                           // af draw()-metoden
-boolean moleSynlig = false;            // Flag: Kan muldvarpen ses eller ej?
-boolean knapTrykket = false;           // Flag: Er muldvarpen blevet ramt eller ej?
-boolean blodSynlig = false;            // Flag: Er der blod på banen?
-boolean jordSynlig = false;            // Flag: Er der jord på banen?
+Trae[] traer;                              // array med objekter af typen Trae
+int antalTraer = 0;                        // antallet af træer på banen
 
-// setup()-metoden dimensionerer nu også pointfelterne
+// Variabler til at styre knappen
+float kx, ky, kw, kh;                      // Knappens position, bredde og højde
+boolean knapTrykket = true;                // Flag: Er knappen trykket ned og haren i løb
+String knapTekst = "Start igen";           // Teksten, der skal skrives på knappen
+color knapFarve = color(255, 140, 0);      // Knappens farve (orange)
+
+// Variabler til at styre haren. Der er fire forskellige billeder, som viser harens løb
+PImage[] hare;                             // Array der skal rumme billederne af haren.
+float hx, hy = -30;                        // Harebilledets koordinater. Starter med at være -30.
+int hn, hNummer = 0;                       // Hvilket nummer harebillede skal tegnes?
+boolean jumping = false;                   // Dette flag fortæller om haren er i spring
+int godeHop, hareLiv = 0;                  // Point-variable til spillet
+
+// settings()-metoden kører før setup()
+void settings() {
+  size(baneBred, baneHoj);
+} // slut på settings()
+
+// setup()-metoden giver en masse startværdier
 void setup() {
-  size(620, 800);
+  frameRate(20);
   background(graes);
-  textSize(24);                        // Til pointfelterne: Fontstørrelse 24
-  textAlign(CENTER);                   // Teksterne justeres med midten ved de givne koordinater
-  mole = loadImage("muldvarp.png");    // Henter billedet af muldvarpen. Lige nu 85 x 85 pixler
-  pile = loadImage("jordbunke.png");   // Billedet af muldvarpeskuddet
-  blood = loadImage("blodplet.png");   // Billedet af blodklatten
-  hammer = loadImage("hammer.png");    // Hammer (lavet af Alexander Skowalsky fra The Noun Project)
-  hammerH = loadImage("hammerH.png");
-  cursor(hammer);                      // Hammer bruges til cursoren. Billedet max 32 x 32 pixler.
-                                       
-  mw = mole.width;                     // Her findes bredden af billedet "mole"
-  mh = mole.height;                    // Tilsvarende også højden af billedet
-  kx = 450;                            // De følgende tal handler om pointfelterne
-  ky = 40;
+  sky_1x = 440;                            // Skyernes fart og startposition                  
+  sky_2x = 220;          
+  sky_1fart = 2;                      
+  sky_2fart = 3.5;
+  xSpeed = 9;
+  ySpeed = 0;
   kw = 150;
   kh = 40;
-}
+  kx = (baneBred-kw)/2;                    // Knappens koordinater
+  ky = 20;
+  traer = new Trae[10];
+  hare = new PImage[4];                    // For at bruge et array skal det initialiseres og 
+                                           // gives en størrelse. Her har vi de fire harebilleder.
+  for(int h=0; h<4; h++) {
+    hare[h] = loadImage("Hare"+h+".png");  // Billederne læses ind et ad gangen.
+  }
+} // slut på setup()
 
-// draw()-metoden tester først, om der er en synlig muldvarp. Hvis der er en muldvarp, 
-// så kaldes en metode, der overvejer om det er tid at fjerne den igen. Hvis ikke, 
-// så kaldes en metode, der overvejer om det er tid at tegne en. Derpå undersøges, om
-// resterne efter den foregående muldvarp skal forblive eller fjernes (blod eller jord).
-//
-// Når dette er gjort, tegnes de forskellige ting, herunder også pointfelter.
-
+// draw()-metoden tegner nu, foruden himlen og haren, også banen med nogle buske, haren skal over.
 void draw() {
-  // Først tjekker vi, om der skal ske statusændringer mht. muldvarpen
-  if(moleSynlig) {
-    tjekMole();                        // Hvis muldvarpen er på banen skal vi se om den forsvinder
-  }
+  tegnBane();
+  tegnHimmel();
+  if(knapTrykket) {                        // tegnHare() kaldes en gang for hvert gennemløb af
+    tegnHare();                            // draw()-metoden, så længe knapTrykket er sand.
+  }                                        // tegnHare() skifter billede og flytter det hver gang.
   else {
-    createMole();                      // Hvis ikke den er på banen, ser vi om den skal dukke op
-  }
-  // Derefter status med hensyn til blod og jordbunke
-  if(rTimer > 0) {                     // Hvis timeren stadig er positiv, skal den tælles ned
-    rTimer -= 0.02;
-  } 
-  else {                               // Hvis timeren er udløbet skal de forsvinde fra spillepladen
-    blodSynlig = false;
-    jordSynlig = false;
-  }
+    tegnKnap();                            // Mens haren løber skal knappen ikke tegnes.
+  }                      
+}  // slut på draw()
 
-  // Herefter tegner vi, hvad der skal tegnes
-  background(graes);                   // Altid først tegne alt det gamle over
-  if(moleSynlig) {
-    image(mole, mx, my);               // Billedet af muldvarpen, mx og my er øverste venstre hjørne
+// Denne metode tegner banen og holder styr på træerne samt på harens point
+void tegnBane() {
+  fill(graes);                             // Først skal vi male græsset over mellem hvert billede,
+  stroke(graes);                           // lige som vi bagefter gør med himlen
+  rect(0,0,baneBred,baneHoj);
+  
+  // En hule, som haren måske kan søge tilflugt i, til højre på banen
+  stroke(0, 100, 30);
+  fill(100, 70, 0);
+  ellipse(baneBred-40, baneHoj-50, 40, 60);
+  
+  // Nyt træ med jævne mellemrum, og forskellige steder på y-aksen
+  if ((frameCount-5) % 40 == 0) {    
+    float traeTop = random(40, 160);
+    boolean erStor = true;
+    if (traeTop < 100) erStor = false;
+    traer[antalTraer] = new Trae(baneBred, 630, traeTop/2, traeTop, erStor);
+    antalTraer += 1;
   }
-  if(jordSynlig) {                     // Muldvarpeskuddet tegnes hvor muldvarpen senest var
-    image(pile, rx, ry);
-  }
-  if(blodSynlig) {                     // Blodsplatten tegnes hvor muldvarpen senest blev ramt
-    image(blood, rx, ry);              // Blod og jordbunke er ikke synlige samtidig.
-  }
-  tegnPointfelter();                   // Pointfelterne tegnes op til sidst
-}
-
-// Denne funktion tjekker dels om muldvarpen er blevet ramt og i givet fald gøres
-// blodsplatten synlig i stedet for muldvarpen. Hvis ikke muldvarpen er ramt, skal
-// det undersøges, om den dykker ned igen og kun efterlader muldvarpeskuddet. Der 
-// kan kun være en "rest" efter muldvarpen på banen ad gangen (kun et sæt rx- og ry-
-// koordinater). Hvis intet ændres, tælles timeren mTimer lidt op.
-void tjekMole() {
-  if(knapTrykket) {                    // Så er muldvarpen ramt. Den skal erstattes med blod
-    moleSynlig = false;
-    blodSynlig = true;
-    jordSynlig = false;                // Hvis der i forvejen var en jordbunke skal den væk
-    rx = mx;                           // Splatten skal være hvor muldvarpen var indtil nu
-    ry = my;
-    rTimer = 1;                        // Blodklatten skal vises i kort tid, så forsvinde
-    mTimer = 0;
-    knapTrykket = false;
-  }
-  else if(mTimer > mLimit) {           // Så forsvinder muldvarpen og skal erstattes med jord
-    moleSynlig = false;
-    blodSynlig = false;                // Hvis der i forvejen var en blodklat skal den væk
-    jordSynlig = true;                 // og nu skal der jo vises et muldvarpeskud
-    rx = mx;                           // Jordbunken skal være hvor muldvarpen var indtil nu
-    ry = my;
-    rTimer = 1;                        // Muldvarpeskuddet skal vises i kort tid, så forsvinde
-    mTimer = 0;
-    cTimer = random(10);
-    missAntal++;
-  } 
-  mTimer += 0.02;
-}
-
-// Hvis ikke der er en muldvarp på banen, skal det undersøges om en ny skal dukke op.
-// Vi sammenligner mTimer med den cTimer, der blev fastlagt da muldvarpen sidst 
-// forsvandt eller blev slået ned. Når mTimer er størst sættes en muldvarp på, ellers
-// tælles mTimer lidt op.
-void createMole() {
-  if(mTimer > cTimer) {                // Er muldvarpens timer nået op til cTimer (createTimer), som
-    moleSynlig = true;                 // vi satte, da muldvarpen sidst forsvandt? Så laver vi en ny
-    mx = random(20, 540);
-    my = random(100, 700);
-    mLimit = 3 - (pointAntal*0.04) + random(1); // Det skal gå stadig hurtigere men også tilfældigt
-    mTimer = 0;                        // Til sidst skal vi starte muldvarpens timer forfra
-  }
-  else {
-    mTimer += 0.07;
-  }
-}
-
-// Denne funktion optegner pointfelter i vinduets øverste højre hjørne.
-void tegnPointfelter() {
-  fill(knapFarve);                     // Felterne er orange
-  rect(kx, ky, kw, kh);                // Vi laver to pointfelter
-  rect(kx, ky+60, kw, kh);
-  fill(0);                             // Teksten i felterne skal være sort.
-  String pt = knapTekst + pointAntal;  // Det ene felt viser antallet af point (hits).
-  text(pt, kx+kw*0.5, ky+kh*0.5+8);    // Koordinaterne angiver midten af tekstens grundlinje.
-                                       // I forhold til feltets koordinater (dets venstre hjørne)
-                                       // må vi justere.
-  String mt = missTekst + missAntal;   // Det andet felt viser antallet af fejlslag (misses).
-  text(mt, kx+kw*0.5, ky+kh*0.5+68);
-}
-
-// mouseClicked() skal nu undersøge, om museklikket er sket på muldvarpen.
-// Hvis det er, så får man et point, og så skal muldvarpen fjernes (men 
-// det ordner tjekMole()), ellers skal antallet af fejlslag tælles op.
-void mouseClicked() {
-  if(moleSynlig) {
-    if(mouseX > mx && mouseX < mx+mw && mouseY > my && mouseY < my+mh) {
-      knapTrykket = true;
-      pointAntal++;
-      cTimer = random(10); // Hvornår skal den næste muldvarp komme frem?
+  
+  // Herefter tegner vi træerne og tjekker om haren har ramt dem eller om de er røget ud af syne
+  boolean traeForbi = false;
+  for(int t = 0; t < antalTraer; t++) { 
+    Trae trae = traer[t];                   // Hent næste træ fra arrayet
+    if(!trae.tegnTrae(xSpeed)) {            // Tegn træet og få at vide om det ryger ud af syne
+       traeForbi = true;                    // og hvis det gør, så skal det væk
     }
+    if (trae.traeRamt(hx,hy)) {             // Vi spørger træet om haren er hoppet over det
+      hareLiv -= 1;                         // Hvis ikke, koster det et liv
+    } 
     else {
-      // Missed. Skal måske straffes med lyd eller tekst
-      knapTrykket = false;
-      missAntal++;
+      godeHop += 1;                         // Ellers får vi et point
+    }
+  }
+  if (traeForbi) {                          // Hvis et træ er røget ud til venstre skal det fjernes
+    antalTraer -= 1;
+    for (int tt=0; tt<antalTraer; tt++) {   // I så fald er det arrayets første element, så ud med det
+      traer[tt] = traer[tt+1];              // og så skubber vi alle de andre en plads frem
+    }
+  }
+}  // slut på tegnBane()
+
+// Denne metode tegner den løbende eller springende hare.
+void tegnHare() {
+  if (jumping) {                             // Tjek om haren er i spring
+    if (hy > 550) {                          // Springet afsluttes, hvis den er tilbage på grundlinjen
+      hy = 550; ySpeed = 0; jumping = false;
+    }
+    else                                     // Springet fortsætter ellers
+    {
+      hx += 12-xSpeed;
+      hy -= ySpeed;
+      ySpeed -= grav;                           
+      image(hare[0], hx, hy);                // Fast billede af haren mens den springer
     }
   }
   else {
-    // Intet at ramme. Straffes?
-    missAntal++;
+    hy = 550;                                // Harens y-kooordinat er fast, nede i bunden af skærmen
+    hx += 12-xSpeed;                         // Haren flytter sig mod højre, træerne mod venstre.
+    hn += 1;                                 // hn er en tællevariabel, som tæller en op for hver gang
+                                             // draw()-metoden gennemløbes. 
+    hNummer = (hn) % 4;                      // Operatoren % giver os divisionsresten, dvs. det, der 
+                                             // bliver til overs når vi dividerer med tallet bagefter.
+                                             // Her er tallet 4, og hNummer kan derfor få værdierne 0, 
+                                             // 1, 2 eller 3, for vi har jo fire billeder.
+    image(hare[hNummer], hx, hy);            // Dermed vælges billede 0, 1, 2, 3, 0, 1, 2, 3, 0, 1...
+                                             // og for hver gang skubbes billedet mod højre.
+    if (hx > baneBred) {
+      knapTrykket = false;                   // Så er haren løbet ud af billedet og knappen skal tilbage
+      hx = -80;                              // Næste gang haren tegnes skal den starte til venstre
+    }
+  }
+} // slut på tegnHare()
+
+// Disse to standardmetoder bruges til at få haren til at hoppe og til at ændre på banens fart
+void keyPressed() {
+  if (key == 'w') {
+    jumping = true;
+    ySpeed = 30;                             // "Kraften" i afsættet. Kan justeres om ønsket
+  }
+  if (key == 'a') {
+    xSpeed = 15;                             // Buskene bevæger sig hurtigere, og haren baglæns
+  }
+  if (key == 'd') {
+    xSpeed = 0;                              // Buskene står stille og haren hopper meget hurtigt
+  }
+}
+void keyReleased() {
+  if (key == 'a' || key == 'd') {            // tilbage til normaltilstanden
+    xSpeed = 7;              
   }
 }
 
-// Disse to metoder er tilføjet for at cursoren (hammeren) kan animeres
-void mousePressed() {
-  cursor(hammerH);    // Hammeren slår ned
+// Opgave 1:  Spilstatus. Lav felter oppe øverst, der viser godeHop og hareLiv, og lav en 
+//            tekst nederst, der forklarer hvad tasterne gør.
+
+// Opgave 2:  Haren må ikke ramme buskene. Lav metoden til at tjekke om busken er ramt
+//            Det er der gjort klar til i Trae-klassen i metoden traeRamt(x,y), men lige nu
+//            returneres altid at træet ikke rammes. Hvordan kan det gøres?
+
+// Opgave 3:  Lav en ny klasse, Gulerod, som sender billeder af en gulerod hen oveer banen,
+//            så haren kan spise når guleroden kommer forbi og få mere liv.
+//            Husk at gulerodsbilledet skal føjes til sketchen med "Sketch >> Add file.."
+
+// Opgave 4:  Lav spillet sådan at haren skal ned i hulen ude i højre side for at "vinde"
+
+// Opgave 5:  Lad haren løbe på midten hele tiden, og få i stedet solen til at bevæge sig hen over himlen. 
+//            Gør det til et vinderkriterium at haren "har løbet hele dagen", dvs. indtil solen går ned,
+//            uden at ramme et træ.
+
+// Herunder står de af metoderne, der ikke er ændret nævneværdigt i forhold til de tidligere sketches
+
+// Metoden der tegner en knap. Den tegner den kun men undersøger ikke om man
+// har trykket på knappen eller bestemmer hvad der så skal ske
+void tegnKnap() {
+  fill(knapFarve);
+  rect(kx, ky, kw, kh);
+  fill(0);                                 // Teksten på knappen skal skrives med sort
+  textSize(24);                            // og med fontstørrelse 24 (kunne sættes i setup()
+  textAlign(CENTER);                       // Teksten justeres med midten ved de givne koordinater
+  text(knapTekst, kx+kw*0.5, ky+kh*0.5+8); // Koordinaterne angiver så midten af tekstens grundlinje.
+                                           // I forhold til knappens venstre hjørne må vi justere.
 }
 
-void mouseReleased() {
-  cursor(hammer);     // Hammeren løftes igen
+// mouseClicked() skal først undersøge, om museklikket er sket på knappen. Det gør vi 
+// ved at undersøge om musens koordinater er inden for grænserne af knappens rektangel.
+// Hvis de er, så skal haren løbe igen.
+void mouseClicked() {
+    if(mouseX > kx && mouseX < kx+kw && mouseY > ky && mouseY < ky+kh) {
+      if (!knapTrykket) knapTrykket = true; // Knappen kan kun ses hvis den ikke er blevet 
+                                        // trykket ned, ellers er den skjult og skal ikke 
+                                        // kunne aktiveres igen før haren er løbet væk.
+    }
 }
 
-// Opgave 1: Prøv at tilføje en hare, der sprinter over skærmen en gang imellem, 
-//           som man også skal ramme. 
-//
-//           Prøv eventuelt at se om du kan få den til at løbe begge veje over skærmen, 
-//           og om du kan finde en måde at spejlvende billederne, så den ikke løber 
-//           baglæns den ene vej.
-
-// Opgave 2: Prøv at tilføje en slutbetingelse: Hvis du laver 3 miss i træk, så er spillet 
-//           ovre. Så skal du vise en slutskærm med din score, og der skal være en knap,
-//           der kan starte spillet forfra.
-
-// Opgave 3: Prøv at finde ud af, hvordan du kan bruge systemets ur til at styre animationer
-//           og hændelser med, i stedet for blot at bruge antallet af gange draw()-metoden 
-//           har kørt (Hvilket jo kan variere meget fra computer til computer). Hint: Start 
-//           med at kigge på funktionerne framerate() og millis() i "Help >> Reference".
-
-// Opgave 4: Prøv at tilføje nogle ekstra billeder, som kan vises i stedet for muldvarp og 
-//           hare, og som man IKKE må ramme: Hvis du smadrer bedstemors blomst, eller dræber 
-//           drengen på cykel, så dør du...
+// Metoden tegnHimmel() er den samme som før
+void tegnHimmel() {
+  fill(himmel);
+  stroke(himmel);
+  rect(0, 70, baneBred, 170);
+  stroke(0);
+  fill(sky);
+  ellipse(sky_1x, 140, 200, 100);
+  ellipse(sky_2x, 190, 130, 68);
+  sky_1x += 1;
+  if (sky_1x > baneBred+100) sky_1x = -100;
+  sky_2x += 2;
+  if (sky_2x > baneBred+100) sky_2x = -100;  
+}
