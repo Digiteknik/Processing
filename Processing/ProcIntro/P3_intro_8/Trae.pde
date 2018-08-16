@@ -43,7 +43,7 @@ class Trae {
     harStamme = st;
   }
 
-  // Funktion der tegner træet - med eller uden stamme
+  // Metode - en klassemetode - der tegner træet - med eller uden stamme
   boolean tegnTrae(float speed) {
     xpos -= speed;                         // Flyt træets position før tegning
     if (xpos < -bredde/2) {                // Så er træet uden for skærmens venstre kant
@@ -63,14 +63,14 @@ class Trae {
     return true;
   }
   
-  // Funktion til at afgøre om træet rammes af haren? Hvordan kan vi finde ud af det?
-  // Funktionen tager en position som parametre. Hvilken position er det i forhold til
+  // Metode til at afgøre om træet rammes af haren? Hvordan kan vi finde ud af det?
+  // Metoden tager en position som parametre. Hvilken position er det i forhold til
   // haren. Er det tilstrækkelig information? Og hvornår og hvor tit skal der spørges?
   boolean traeRamt(float objX, float objY) {
     return false;                          // Lige nu rammes træet aldrig
   }
   
-  // Bruges ikke lige nu. Find på noget at bruge denne funktion til
+  // Bruges ikke lige nu. Find på noget at bruge denne metode til
   void grow() {
     hojde *= 1.1;
     bredde *= 1.05;
