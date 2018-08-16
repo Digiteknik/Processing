@@ -7,8 +7,8 @@
  *
  * En løkke i programmering er noget, der gentages igen og igen. draw()-metoden er en løkke,
  * og den stopper ikke. En for-løkke, derimod, indeholder en betingelse, som siger hvornår 
- * den skal stoppe. Vi laver en ny funktion, der hedder tegnSkov(.), som får en parameter der
- * siger hvor mange træer vi vil have i skoven. I tegnSkov(.)-funktionen lægger vi en sådan 
+ * den skal stoppe. Vi laver en ny metode, der hedder tegnSkov(.), som får en parameter der
+ * siger hvor mange træer vi vil have i skoven. I tegnSkov(.)-metoden lægger vi en sådan 
  * for-løkke, og vi vil gerne have løkken til at stoppe, når der er tegnet 50 træer. 
  *
  * Imidlertid er det ikke nok at stoppe for-løkken. Næste gang draw()-metoden kører (og den kører
