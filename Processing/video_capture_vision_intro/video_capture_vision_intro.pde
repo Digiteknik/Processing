@@ -79,3 +79,11 @@ void mousePressed() {
   trackColor = video.pixels[loc];
 }
 
+/*
+OPGAVER
+
+Prøv at fjerne videoen, så man kun flytter rundt på en prik i rummet
+Prøv at gøre cirkelens bevægelse mere blød - så den ikke springer diskret mellem punkterne, men i stedet bevæger sig stille og roligt mod dem
+Prøv at lave skitsen til et lille spray-malings program...
+
+*/
