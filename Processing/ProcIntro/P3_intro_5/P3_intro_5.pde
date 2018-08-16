@@ -41,7 +41,7 @@ void draw() {
 }
 
 /*
- * Funktionen tegnTrae() er lavet om, så den nu får tre parametre: De to er stadig koordinater til 
+ * Metoden tegnTrae() er lavet om, så den nu får tre parametre: De to er stadig koordinater til 
  * træets position (til roden - det gjorde du selv i foregående sketch). Den tredje er en farve, 
  * som bruges til kronen. 
  */
@@ -52,7 +52,7 @@ void tegnTrae(float xx, float yy, color ff) {
   fill(ff);                            // Kronens farve får vi nu derfra hvor funktionen kaldes.
   ellipse(xx, yy-210, 150, 180);       
   // Husk også at sætte æblet på.
-}
+} 
 
 /* 
  * mouseClicked() er også ændret. Når vi sætter et nyt træ, vil vi gerne have variation 
@@ -73,7 +73,7 @@ void mouseClicked() {
 }
 
 /* 
- * tegnHimmel()-funktionen står nu for sig selv. Men kodelinjerne er de samme, og metoden gør 
+ * tegnHimmel()-metoden står nu for sig selv. Men kodelinjerne er de samme, og metoden gør 
  * fuldstændig det samme som de gjorde, da de stod oppe i draw()-metoden. I den foregående sketch
  * flyttede du også selv disse kodelinjer til deres egen funktion.
  *
@@ -97,7 +97,7 @@ void tegnHimmel() {
   if (sky_1x > 800) sky_1x = -200;    // Og de starter stadig forfra, når de kommer uden for vinduet. 
   if (sky_2x > 720) sky_2x = -100; 
   
-} // Her slutter tegnHimmel()-funktionens kodeblok
+} // Her slutter tegnHimmel()-metodens kodeblok
 
 // Opgave 1:  Gule, lilla eller turkisblå træer er grimme. Ret farve-intervallerne i mouseClicked() 
 //            til, så der er variation i de grønne farver, uden at det ser helt skørt ud.

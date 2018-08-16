@@ -7,14 +7,14 @@
  *
  * En løkke i programmering er noget, der gentages igen og igen. draw()-metoden er en løkke,
  * og den stopper ikke. En for-løkke, derimod, indeholder en betingelse, som siger hvornår 
- * den skal stoppe. Vi laver en ny funktion, der hedder tegnSkov(.), som får en parameter der
- * siger hvor mange træer vi vil have i skoven. I tegnSkov(.)-funktionen lægger vi en sådan 
+ * den skal stoppe. Vi laver en ny metode, der hedder tegnSkov(.), som får en parameter der
+ * siger hvor mange træer vi vil have i skoven. I tegnSkov(.)-metoden lægger vi en sådan 
  * for-løkke, og vi vil gerne have løkken til at stoppe, når der er tegnet 50 træer. 
  *
  * Imidlertid er det ikke nok at stoppe for-løkken. Næste gang draw()-metoden kører (og den kører
  * jo igen og igen) skal man sørge for at for-løkken ikke bliver kørt en gang til og tegner nye
  * 50 træer. For at holde styr på, om draw()-metoden skal tegne en skov eller ej, laver vi en 
- * særlig type 
+ * særlig type variabel: Et såkaldt "flag".
  */
 
 // Variabler. 
@@ -43,7 +43,7 @@ void setup() {
   sky_2x = 220;          
   sky_1fart = 1;                      
   sky_2fart = 1.5;
-}
+} // her slutter setup()
 
 // draw()-metoden tegner nu en hel skov. tegnSkov()-funktionen står lige neden under.
 void draw() {
@@ -53,12 +53,12 @@ void draw() {
                                         // linje over og tegner kun himlen hvor skyerne
                                         // driver afsted.
   tegnHimmel();
-}
+} // her slutter draw()
 
-/* tegnSkov()-funktionen tegner det antal træer, den får besked på. Det sker med
+/* tegnSkov()-metoden tegner det antal træer, den får besked på. Det sker med
  * parameteren antalTraer, der er et helt tal og derfor af typen int (for "integer").
  *
- * Øverst i funktionen står vores for-løkke. I for-parentesen står der 3 linjer kode, 
+ * Øverst i koden står vores for-løkke. I for-parentesen står der 3 linjer kode, 
  * adskilt af semikolon. Først erklæres vores tællevariabel t (et helt tal, derfor 
  * af typen int ), som her tæller antallet af træer, der allerede er blevet tegnet. 
  * Betingelsen, at vi ikke allerede har tegnet 50 træer, står i midten, og til sidst 
@@ -81,9 +81,9 @@ void tegnSkov(int antalTraer) {
   
   skovIkkeTegnet = false;               // Til sidst "sænker vi flaget": Nu er skoven blevet 
                                         // tegnet, så skal det ikke gøres igen.
-} // Her slutter tegnSkov()-funktionen
+} // Her slutter tegnSkov()-metoden
 
-// tegnHimmel()-funktionen er ikke ændret.
+// tegnHimmel()-metoden er ikke ændret.
 void tegnHimmel() {
   fill(himmel);
   stroke(himmel);
@@ -96,9 +96,9 @@ void tegnHimmel() {
   if (sky_1x > 800) sky_1x = -100;
   sky_2x += 2;
   if (sky_2x > 800) sky_2x = -100;  
-}
+} // her slutter tegnHimmel()
 
-// tegnTrae()-funktionen er ikke ændret. Husk selv æblet
+// tegnTrae()-metoden er ikke ændret. Husk selv æblet
 void tegnTrae(float xx, float yy, color ff) {
   stroke(0);
   fill(stamme);                        
