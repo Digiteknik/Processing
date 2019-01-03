@@ -19,7 +19,7 @@ function draw() {
     noStroke();
     // Draw an ellipse with height based on volume
     var h = map(vol, 0, 0.5, height, 0);
-    ellipse(width/2, h - 25, 50, 50);
+    ellipse(200, h - 25, 50, 50);
 }
 
 function touchStarted() {
